@@ -1,1 +1,1 @@
-# original michael nvim made by kickstartnvim
+# made by kickstartnvim
