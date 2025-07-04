@@ -18,7 +18,5 @@ return {
 				path = "/mnt/c/Users/drzo1dberg/OneDrive - Example GmbH/Dokumente/Example Org/",
 			},
 		},
-
-		-- see below for full list of options 👇
 	},
 }
