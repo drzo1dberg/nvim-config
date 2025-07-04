@@ -3,7 +3,8 @@
 --  NOTE: Must happen before plugins are loaded (otherwise wrong leader will be used)
 vim.g.mapleader = " "
 vim.g.maplocalleader = " "
-
+require("custom.keymaps")
+require("custom.options")
 -- Set to true if you have a Nerd Font installed and selected in the terminal
 vim.g.have_nerd_font = false
 
@@ -934,7 +935,6 @@ require("lazy").setup({
 		},
 	},
 })
-require("custom.keymaps")
-require("custom.options")
+
 -- The line beneath this is called `modeline`. See `:help modeline`
 -- vim: ts=2 sts=2 sw=2 et

@@ -18,7 +18,5 @@ return {
 				path = "/mnt/c/Users/MichaelJoséNunesJaco/OneDrive - Grothe IT-Service GmbH/Dokumente/Grothe IT-Service/",
 			},
 		},
-
-		-- see below for full list of options 👇
 	},
 }
