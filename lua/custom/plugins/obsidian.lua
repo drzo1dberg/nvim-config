@@ -11,11 +11,11 @@ return {
 		workspaces = {
 			{
 				name = "personal",
-				path = "/mnt/c/Users/MichaelJoséNunesJaco/OneDrive - Grothe IT-Service GmbH/Dokumente/privat/",
+				path = "/mnt/c/Users/MichaelJNunesJacobsG/OneDrive - Grothe IT-Service GmbH/Dokumente/privat/",
 			},
 			{
 				name = "work",
-				path = "/mnt/c/Users/MichaelJoséNunesJaco/OneDrive - Grothe IT-Service GmbH/Dokumente/Grothe IT-Service/",
+				path = "/mnt/c/Users/MichaelJNunesJacobsG/OneDrive - Grothe IT-Service GmbH/Dokumente/Grothe IT-Service/",
 			},
 		},
 	},
