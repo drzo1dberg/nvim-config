@@ -1,6 +1,32 @@
 local M = {}
 local mapopts = { noremap = true, silent = true }
 
+M.open_noinsert_mode = {
+	n = {
+		["o"] = { "o<Esc>", "Open below (stay normal mode)" },
+		["O"] = { "O<Esc>", "Open above (stay normal mode)" },
+	},
+}
+
+M.delete_no_yankovizja = {
+	n = {
+		["<leader>dd"] = { '"_dd', "Delete line (no yankovizja)" },
+		["<leader>d"] = { '"_d', "Delete op (no yankovizja)" },
+		["<leader>D"] = { '"_D', "Delete to EOL (no yankovizja)" },
+		["x"] = { '"_x', "Char delete (no yankovizja)" },
+		["s"] = { '"_s', "Substitute (no yankovizja)" },
+	},
+	v = {
+		["<leader>d"] = { '"_d', "Visual delete (noyankovizja)" },
+	},
+}
+
+M.duplicate_line = {
+	n = {
+		["<leader>yy"] = { ":t.<CR>", "Duplicate line below (no yank)" },
+	},
+}
+
 M.disabled_arrows = {
 	n = {
 		["<Left>"] = { '<cmd>echo "Use h to move!"<CR>', "Disable ←" },
