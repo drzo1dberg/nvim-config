@@ -64,6 +64,7 @@ M.telescope = {
 		["<leader>fb"] = { "<cmd>Telescope buffers<CR>", "Open buffers" },
 	},
 }
+
 M.harpoon = {
 	n = {
 		["<leader>ha"] = {
@@ -112,6 +113,12 @@ M.harpoon = {
 			end,
 			"Harpoon clear",
 		},
+	},
+}
+
+M.obsidian = {
+	n = {
+		["<leader>ow"] = { "<cmd>ObsidianThisWeek<CR>", "Open this week's note" },
 	},
 }
 
