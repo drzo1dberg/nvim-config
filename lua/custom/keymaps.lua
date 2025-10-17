@@ -62,6 +62,7 @@ M.telescope = {
 		["<leader>fg"] = { "<cmd>Telescope live_grep<CR>", "Live grep" },
 		["<leader>fr"] = { "<cmd>Telescope oldfiles<CR>", "Recent files" },
 		["<leader>fb"] = { "<cmd>Telescope buffers<CR>", "Open buffers" },
+		["<leader>fp"] = { "<cmd>Telescope project<CR>", "Projects" },
 	},
 }
 

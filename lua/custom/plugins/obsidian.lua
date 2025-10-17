@@ -11,6 +11,7 @@ return {
 		workspaces = {
 			{
 				name = "personal",
+<<<<<<< HEAD
 				path = "/mnt/c/Users/MichaelJNunesJacobsG/OneDrive - Grothe IT-Service GmbH/Dokumente/privat/",
 			},
 			{
@@ -48,6 +49,9 @@ return {
 					return require("obsidian").util.gf_passthrough()
 				end,
 				opts = { noremap = false, expr = true, buffer = true },
+=======
+				path = "/home/michael/obsidian/",
+>>>>>>> a14cb6f (personal setup)
 			},
 		},
 	},
