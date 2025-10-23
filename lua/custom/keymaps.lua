@@ -122,6 +122,13 @@ M.obsidian = {
 		["<leader>ow"] = { "<cmd>ObsidianThisWeek<CR>", "Open this week's note" },
 	},
 }
+M.obsidian.n["<leader>oS"] = { "<cmd>ObsidianNewStory<CR>", "New Story project" }
+M.obsidian.n["<leader>oT"] = { "<cmd>ObsidianNewFromTemplate<CR>", "New from template" }
+M.obsidian.n["<leader>oN"] = { "<cmd>ObsidianNewNumbered<CR>", "New numbered note (e.g. 61_…)" }
+
+M.obsidian.n["<leader>oB"] = { "<cmd>ObsidianNewShort<CR>", "New Short project" }
+M.obsidian.n["<leader>oP"] = { "<cmd>ObsidianNewShortFromTemplate<CR>", "Short from template" }
+M.obsidian.n["<leader>oZ"] = { "<cmd>ObsidianNewShortNumbered<CR>", "Short numbered note" }
 
 for _, section in pairs(M) do
 	for mode, mappings in pairs(section) do

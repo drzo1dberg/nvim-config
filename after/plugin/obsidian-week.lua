@@ -24,14 +24,29 @@ vim.api.nvim_create_user_command("ObsidianThisWeek", function()
 
 	local abs_dir = root_path / rel_dir
 	local abs_file = root_path / rel_file
+	local abs_file_str = tostring(abs_file) -- für writefile/io.open
 
 	if not abs_dir:exists() then
 		abs_dir:mkdir({ parents = true })
 	end
 
 	if not abs_file:exists() then
-		abs_file:write(("# Week %s (%s)\n\n- [ ] TODOs\n\n"):format(w, y))
+		local lines = {
+			string.format("# Kalenderwoche %s (%s)", w, y),
+			"",
+		}
+		local ok_write = pcall(vim.fn.writefile, lines, abs_file_str)
+		if not ok_write then
+			local fh, err = io.open(abs_file_str, "w")
+			if not fh then
+				vim.notify("cant write to file: " .. tostring(err), vim.log.levels.ERROR)
+				return
+			end
+			fh:write(table.concat(lines, "\n"))
+			fh:write("\n")
+			fh:close()
+		end
 	end
 
-	vim.cmd.edit(tostring(abs_file))
+	vim.cmd.edit(abs_file_str)
 end, {})
