@@ -12,17 +12,10 @@ return {
 			{
 				name = "personal",
 				path = "/home/michael/obsidian/",
-			},
-			{
-				name = "anywhere",
-				path = function()
-					return assert(vim.fs.dirname(vim.api.nvim_buf_get_name(0)))
-				end,
-				overrides = {
-					notes_subdir = vim.NIL,
-					new_notes_location = "current_dir",
-					templates = { folder = vim.NIL },
-					disable_frontmatter = true,
+				templates = {
+					folder = "templates", -- /home/obsidian/templates
+					date_format = "%Y-%m-%d",
+					time_format = "%H:%M",
 				},
 			},
 		},
