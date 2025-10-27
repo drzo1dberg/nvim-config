@@ -10,8 +10,12 @@ return {
 	opts = {
 		workspaces = {
 			{
+				name = "work",
+				path = "/mnt/c/Users/drzo1dberg/OneDrive - Example GmbH/Dokumente/Example Org/",
+			},
+			{
 				name = "personal",
-				path = "/home/user/obsidian/",
+				path = "/mnt/c/Users/drzo1dberg/OneDrive - Example GmbH/Dokumente/privat/",
 				templates = {
 					folder = "templates", -- /home/obsidian/templates
 					date_format = "%Y-%m-%d",
