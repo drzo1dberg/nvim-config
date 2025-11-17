@@ -12,10 +12,6 @@ return {
 			{
 				name = "work",
 				path = "/mnt/c/Users/MichaelJNunesJacobsG/OneDrive - Grothe IT-Service GmbH/Dokumente/Grothe IT-Service/",
-			},
-			{
-				name = "personal",
-				path = "/mnt/c/Users/MichaelJNunesJacobsG/OneDrive - Grothe IT-Service GmbH/Dokumente/privat/",
 				templates = {
 					folder = "templates", -- /home/obsidian/templates
 					date_format = "%Y-%m-%d",
@@ -23,25 +19,60 @@ return {
 				},
 			},
 		},
+		note_path_func = function(spec)
+			local function sanitize(s)
+				s = (s or "")
+					:gsub("%c", "") --control chars
+					:gsub('[<>:"/\\|%?%*]', "") -- forbidden signs
+					:gsub("^%s+", "")
+					:gsub("%s+$", "") -- Trim
+				s = s:gsub(":", ".") -- : to .
+				return s
+			end
+
+			local y = os.date("%G")
+			local w = os.date("%V")
+			local base = string.format("daily todos/%s/kw%s/", y, w)
+
+			local title = sanitize(spec.title)
+			if title == "" then
+				title = "note-" .. (spec.id and spec.id:sub(1, 6) or os.date("%H%M%S"))
+			end
+			return base .. title
+		end,
+
+		note_frontmatter_func = function(note)
+			local fm = {
+				id = note.id,
+				title = note.title,
+				tags = note.tags,
+				aliases = note.aliases,
+			}
+			return fm
+		end,
+
 		daily_notes = {
 			folder = "daily todos",
 			default_tags = { "daily-todo" },
 		},
+
 		attachments = {
-			img_folder = "daily todos",
+			img_folder = function()
+				local y = os.date("%G")
+				local w = os.date("%V")
+				return string.format("daily todos/%s/kw%s", y, w)
+			end,
 			image_name_func = function()
-				local y = os.date("%G") -- ISO-Jahr (Kalenderwochenjahr)
-				local w = os.date("%V") -- ISO-KW (01..53)
-				return string.format("%s/kw%s/img_%s", y, w, os.date("%Y%m%d-%H%M%S"))
+				return string.format("img_%s", os.date("%Y%m%d-%H%M%S"))
 			end,
 		},
+
 		mappings = {
 			["gf"] = {
 				action = function()
 					return require("obsidian").util.gf_passthrough()
 				end,
 				opts = { noremap = false, expr = true, buffer = true },
-				path = "/home/michael/obsidian/",
 			},
 		},
 	},
