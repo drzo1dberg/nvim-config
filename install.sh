@@ -1,7 +1,36 @@
 #!/usr/bin/env bash
 # Richtet diese nvim-Config auf einer neuen Maschine ein.
 # Zielzustand: dieses Repo ist ~/.config/nvim, direkt ausgecheckt oder per Symlink.
+#
+# Optionen:
+#   --obsidian-location <pfad>  legt den Obsidian-Vault an diesem Pfad an,
+#                               inklusive Zettelkasten-Ordnerstruktur, und
+#                               schreibt ihn nach ~/.config/obsidian-vault.
+#                               Diese Datei lesen nvim UND die Shell-Aliases
+#                               vl und vault, eine Wahrheit fuer beide.
 set -euo pipefail
+
+vault=""
+while [ $# -gt 0 ]; do
+  case "$1" in
+    --obsidian-location)
+      shift
+      vault="${1:?--obsidian-location braucht einen Pfad}"
+      ;;
+    --obsidian-location=*)
+      vault="${1#*=}"
+      ;;
+    -h|--help)
+      sed -n '2,11p' "$0"
+      exit 0
+      ;;
+    *)
+      echo "Unbekannte Option: $1" >&2
+      exit 1
+      ;;
+  esac
+  shift
+done
 
 repo="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 target="$HOME/.config/nvim"
@@ -17,6 +46,18 @@ else
   mkdir -p "$HOME/.config"
   ln -sfn "$repo" "$target"
   echo "Symlink gesetzt: $target -> $repo"
+fi
+
+if [ -n "$vault" ]; then
+  vault="${vault/#\~/$HOME}"
+  case "$vault" in /*) ;; *) vault="$PWD/$vault" ;; esac
+  # dieselbe Ordnerstruktur wie im Work-Vault, note_path_func erwartet sie
+  mkdir -p "$vault/Zettelkasten" "$vault/daily todos" "$vault/Vorlagen" "$vault/Architektur Decision Record"
+  mkdir -p "$HOME/.config"
+  printf '%s\n' "$vault" > "$HOME/.config/obsidian-vault"
+  echo
+  echo "Obsidian-Vault: $vault"
+  echo "Pfad gespeichert in ~/.config/obsidian-vault, gilt fuer nvim und die vl/vault-Aliases."
 fi
 
 echo
