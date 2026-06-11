@@ -24,7 +24,7 @@ Auf einer Maschine ohne den Work-OneDrive legt `--obsidian-location` einen eigen
 ~/.config/nvim/install.sh --obsidian-location ~/notizen
 ```
 
-Das erzeugt dort die komplette Zettelkasten-Struktur, also `Zettelkasten`, `daily todos`, `Vorlagen` und `Architektur Decision Record`, und schreibt den Pfad nach `~/.config/obsidian-vault`. Diese eine Datei ist die einzige Wahrheit für den Vault-Ort: die Obsidian-Spec in nvim liest sie beim Start, und die Shell-Aliases `vl` und `vault` aus dem dotfiles-Repo lesen sie über die Umgebungsvariable `OBSIDIAN_VAULT`. Ohne die Datei gilt der Work-Vault als Default. Damit funktioniert das gewohnte Zettelkasten-Manöver auf jeder Maschine identisch: `vl` öffnet die Tagesnotiz, `vl -1` die letzte existierende Notiz davor, `vl -2` die davor, über Wochenenden und Jahresgrenzen hinweg.
+Das erzeugt dort die komplette Zettelkasten-Struktur, also `Zettelkasten`, `daily todos`, `Vorlagen` und `Architektur Decision Record`, und schreibt den Pfad nach `~/.config/obsidian-vault`. Diese eine Datei ist die einzige Wahrheit für den Vault-Ort: die Obsidian-Spec in nvim liest sie beim Start, und die Shell-Aliases `vl` und `vault` aus dem dotfiles-Repo lesen sie über die Umgebungsvariable `OBSIDIAN_VAULT`. Ohne die Datei gilt der Work-Vault als Default. Damit funktioniert das gewohnte Zettelkasten-Manöver auf jeder Maschine identisch: `vl` öffnet die Tagesnotiz, `vl -1` die letzte existierende Notiz davor, `vl -2` die davor, über Wochenenden und Jahresgrenzen hinweg. `vl -d 12.04.26` öffnet eine Notiz direkt per deutschem Datum. Beides sucht auch in den Wochenordnern, die `zk-archive.sh` unter `Zettelkasten/Archiv/` anlegt.
 
 ## Abhängigkeiten
 
