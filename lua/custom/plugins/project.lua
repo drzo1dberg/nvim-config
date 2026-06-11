@@ -6,9 +6,9 @@ return {
 		telescope.setup({
 			extensions = {
 				project = {
+					-- alle Repos unter ~/github-repos, egal wie die Unterordner heissen
 					base_dirs = {
-						{ "~/github-repos/workrepos", max_depth = 1 },
-						{ "~/github-repos/drzo1dberg", max_depth = 1 },
+						{ "~/github-repos", max_depth = 2 },
 					},
 				},
 			},
