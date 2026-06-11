@@ -1,7 +1,8 @@
--- Vault-Pfad: Default ist der Work-Vault; ueberschreibbar pro Maschine durch
--- ~/.config/obsidian-vault, eine Zeile mit dem Pfad, geschrieben von install.sh --obsidian-location.
--- Dieselbe Datei steuert die Shell-Aliases vl und vault.
-local vault = "/mnt/c/Users/drzo1dberg/OneDrive - Example GmbH/Dokumente/Example/"
+-- Vault-Pfad: pro Maschine ueber ~/.config/obsidian-vault gesetzt, eine Zeile mit
+-- dem Pfad, geschrieben von install.sh --obsidian-location. Dieselbe Datei steuert
+-- die Shell-Aliases vl und vault. Fehlt sie, gilt der neutrale Default ~/obsidian
+-- und das Plugin bleibt per cond aus, bis ein echter Vault konfiguriert ist.
+local vault = vim.fn.expand("~/obsidian")
 local override = vim.fn.expand("~/.config/obsidian-vault")
 if vim.fn.filereadable(override) == 1 then
 	local lines = vim.fn.readfile(override, "", 1)
@@ -120,7 +121,8 @@ return {
 			pattern = "*.md",
 			callback = function(args)
 				local path = vim.api.nvim_buf_get_name(args.buf)
-				if not path:find("Example", 1, true) then return end
+				-- nur Dateien innerhalb des konfigurierten Vaults anfassen
+				if not path:find(vault, 1, true) then return end
 
 				local lines = vim.api.nvim_buf_get_lines(args.buf, 0, 30, false)
 				if lines[1] ~= "---" then return end
