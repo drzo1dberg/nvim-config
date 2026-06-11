@@ -1,4 +1,14 @@
+-- Vault-Pfad: Default ist der Work-Vault; ueberschreibbar pro Maschine durch
+-- ~/.config/obsidian-vault, eine Zeile mit dem Pfad, geschrieben von install.sh --obsidian-location.
+-- Dieselbe Datei steuert die Shell-Aliases vl und vault.
 local vault = "/mnt/c/Users/drzo1dberg/OneDrive - Example GmbH/Dokumente/Example/"
+local override = vim.fn.expand("~/.config/obsidian-vault")
+if vim.fn.filereadable(override) == 1 then
+	local lines = vim.fn.readfile(override, "", 1)
+	if lines[1] and lines[1] ~= "" then
+		vault = lines[1]
+	end
+end
 
 return {
 	-- gepflegter Community-Fork, Upstream von epwalsh ist archiviert
