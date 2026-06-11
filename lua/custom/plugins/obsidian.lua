@@ -1,5 +1,6 @@
 return {
-	"epwalsh/obsidian.nvim",
+	-- gepflegter Community-Fork, Upstream von epwalsh ist archiviert
+	"obsidian-nvim/obsidian.nvim",
 	version = "*",
 	lazy = true,
 	ft = "markdown",
