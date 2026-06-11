@@ -1,9 +1,15 @@
+local vault = "/mnt/c/Users/drzo1dberg/OneDrive - Example GmbH/Dokumente/Example/"
+
 return {
 	-- gepflegter Community-Fork, Upstream von epwalsh ist archiviert
 	"obsidian-nvim/obsidian.nvim",
 	version = "*",
 	lazy = true,
 	ft = "markdown",
+	-- nur laden, wenn der Work-Vault gemountet ist; auf Maschinen ohne ihn bleibt das Plugin aus
+	cond = function()
+		return vim.fn.isdirectory(vault) == 1
+	end,
 	dependencies = {
 		"nvim-lua/plenary.nvim",
 	},
@@ -11,7 +17,7 @@ return {
 		workspaces = {
 			{
 				name = "work",
-				path = "/mnt/c/Users/drzo1dberg/OneDrive - Example GmbH/Dokumente/Example/",
+				path = vault,
 				templates = {
 					folder = "Vorlagen",
 					date_format = "%Y-%m-%d",
