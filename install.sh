@@ -8,6 +8,12 @@
 #                               schreibt ihn nach ~/.config/obsidian-vault.
 #                               Diese Datei lesen nvim UND die Shell-Aliases
 #                               vl und vault, eine Wahrheit fuer beide.
+#
+# Richtet ausserdem den woechentlichen Zettelkasten-Archiver ein, montags 09:00,
+# als systemd-User-Timer mit Persistent=true: verpasste Montage werden beim
+# naechsten Start der Distro nachgeholt, wichtig unter WSL. Ohne systemd
+# faellt es auf einen crontab-Eintrag zurueck. Braucht zk-archive.sh aus dem
+# Repo bash-skript-sammlung.
 set -euo pipefail
 
 vault=""
@@ -21,7 +27,7 @@ while [ $# -gt 0 ]; do
       vault="${1#*=}"
       ;;
     -h|--help)
-      sed -n '2,11p' "$0"
+      sed -n '2,17p' "$0"
       exit 0
       ;;
     *)
@@ -58,6 +64,54 @@ if [ -n "$vault" ]; then
   echo
   echo "Obsidian-Vault: $vault"
   echo "Pfad gespeichert in ~/.config/obsidian-vault, gilt fuer nvim und die vl/vault-Aliases."
+fi
+
+# --- Zettelkasten-Archiver woechentlich am Montag -----------------------------
+zk="$HOME/.local/bin/zk-archive"
+if [ ! -e "$zk" ]; then
+  zk_src="$HOME/github-repos/drzo1dberg/bash-tools-and-scripts/zk-archive.sh"
+  if [ -f "$zk_src" ]; then
+    mkdir -p "$HOME/.local/bin"
+    ln -sf "$zk_src" "$zk"
+    echo "zk-archive nach ~/.local/bin verlinkt."
+  fi
+fi
+
+echo
+if [ -e "$zk" ]; then
+  mkdir -p "$HOME/.config/systemd/user"
+  cat > "$HOME/.config/systemd/user/zk-archive.service" <<'UNIT'
+[Unit]
+Description=Zettelkasten-Archiver, verschiebt alte Notizen in Wochenordner
+
+[Service]
+Type=oneshot
+ExecStart=%h/.local/bin/zk-archive --apply
+UNIT
+  cat > "$HOME/.config/systemd/user/zk-archive.timer" <<'UNIT'
+[Unit]
+Description=Zettelkasten-Archiver woechentlich am Montag
+
+[Timer]
+OnCalendar=Mon *-*-* 09:00
+Persistent=true
+
+[Install]
+WantedBy=timers.target
+UNIT
+  if systemctl --user daemon-reload 2>/dev/null \
+     && systemctl --user enable --now zk-archive.timer 2>/dev/null; then
+    echo "Archiv-Timer aktiv: montags 09:00, verpasste Laeufe werden nachgeholt."
+  elif command -v crontab >/dev/null 2>&1; then
+    ( crontab -l 2>/dev/null | grep -v 'zk-archive'; echo "0 9 * * 1 $zk --apply" ) | crontab -
+    echo "Kein systemd-User-Manager, Archiver laeuft stattdessen per crontab montags 09:00."
+    echo "Achtung: cron holt verpasste Laeufe nicht nach, wenn die Maschine aus war."
+  else
+    echo "Weder systemd-User-Manager noch crontab verfuegbar, Archiver bitte manuell einplanen."
+  fi
+else
+  echo "zk-archive.sh nicht gefunden, Archiv-Timer uebersprungen."
+  echo "Repo bash-skript-sammlung clonen und install.sh erneut ausfuehren."
 fi
 
 echo
