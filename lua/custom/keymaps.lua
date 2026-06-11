@@ -78,8 +78,9 @@ M.harpoon = {
 
 		["<leader>hh"] = {
 			function()
-				-- Schnellmenü ein/aus
-				require("harpoon").ui:toggle_quick_menu()
+				-- Schnellmenü ein/aus; harpoon2 braucht die Liste als Argument
+				local harpoon = require("harpoon")
+				harpoon.ui:toggle_quick_menu(harpoon:list())
 			end,
 			"Harpoon menu",
 		},

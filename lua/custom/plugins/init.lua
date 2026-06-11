@@ -2,6 +2,4 @@
 --  I promise not to create any merge conflicts in this directory :)
 --
 -- See the kickstart.nvim README for more information
-return {
-	vim.opt.rtp:prepend("/home/user/.opam/default/share/ocp-indent/vim"),
-}
+return {}

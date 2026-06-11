@@ -7,5 +7,5 @@ vim.opt_local.concealcursor = "" -- im Normal- & Insert-Mode verdecken
 -- 2) Linter/Diagnostics für Markdown komplett abschalten
 local lint = require("lint")
 lint.linters_by_ft.markdown = {} -- nvim-lint ruft nichts mehr
-vim.diagnostic.enable(false) -- und neue unterbinden
+vim.diagnostic.enable(false, { bufnr = 0 }) -- nur fuer diesen Buffer, sonst global aus
 ------------------------------------------------
