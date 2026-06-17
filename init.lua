@@ -819,18 +819,33 @@ require("lazy").setup({
 
 			-- cwd vor dem Dateinamen anzeigen, Original-Funktion bleibt erhalten
 			local orig_filename = statusline.section_filename
+
+			-- Logischer cwd: zeigt die Shell-PWD (mit Symlink) auf dasselbe Ziel
+			-- wie der aufgeloeste getcwd, diese bevorzugen. So erscheint ~/bf statt
+			-- des aufgeloesten /mnt/c-Pfads. resolve() laeuft nur bei cwd-Wechsel,
+			-- nicht bei jedem Redraw, der Wert wird gecacht.
+			local cwd_display = ""
+			local function update_cwd_display()
+				local cwd = vim.fn.getcwd()
+				local pwd = vim.env.PWD
+				if pwd and pwd ~= "" and vim.fn.resolve(pwd) == vim.fn.resolve(cwd) then
+					cwd = pwd
+				end
+				cwd_display = vim.fn.fnamemodify(cwd, ":~")
+			end
+			update_cwd_display()
+
 			---@diagnostic disable-next-line: duplicate-set-field
 			statusline.section_filename = function(args)
-				-- cwd home-relativ mit ~, ausserhalb von Home der volle Pfad
-				local cwd = vim.fn.fnamemodify(vim.fn.getcwd(), ":~")
-				return "cwd: " .. cwd .. "  " .. orig_filename(args)
+				return "cwd: " .. cwd_display .. "  " .. orig_filename(args)
 			end
 
-			-- Statusline nach dem Start und bei cwd-Wechsel neu zeichnen, sonst
+			-- Bei Start und cwd-Wechsel den Cache erneuern und neu zeichnen, sonst
 			-- zeigt der erste Frame beim Oeffnen ueber vl noch kein cwd.
 			vim.api.nvim_create_autocmd({ "VimEnter", "DirChanged" }, {
 				group = vim.api.nvim_create_augroup("cwd-statusline-redraw", { clear = true }),
 				callback = function()
+					update_cwd_display()
 					vim.cmd("redrawstatus!")
 				end,
 			})
