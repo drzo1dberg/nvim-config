@@ -815,6 +815,18 @@ require("lazy").setup({
 				return "%2l:%-2v"
 			end
 
+			-- cwd vor dem Dateinamen anzeigen, Original-Funktion bleibt erhalten
+			local orig_filename = statusline.section_filename
+			---@diagnostic disable-next-line: duplicate-set-field
+			statusline.section_filename = function(args)
+				-- nur der aktuelle Ordnername, Home bleibt ~
+				local cwd = vim.fn.fnamemodify(vim.fn.getcwd(), ":~")
+				if cwd ~= "~" then
+					cwd = vim.fn.fnamemodify((cwd:gsub("/$", "")), ":t")
+				end
+				return cwd .. "  " .. orig_filename(args)
+			end
+
 			-- ... and there is more!
 			--  Check out: https://github.com/echasnovski/mini.nvim
 		end,
