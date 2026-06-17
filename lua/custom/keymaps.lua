@@ -117,12 +117,6 @@ M.harpoon = {
 	},
 }
 
-M.obsidian = {
-	n = {
-		["<leader>ow"] = { "<cmd>ObsidianThisWeek<CR>", "Open this week's note" },
-	},
-}
-
 M.cwd = {
 	n = {
 		["<leader>cv"] = {
