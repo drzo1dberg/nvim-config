@@ -153,4 +153,37 @@ if [ "$missing" -eq 0 ]; then
 else
   echo "Erst die fehlenden Abhaengigkeiten installieren, dann nvim starten."
 fi
+
+# Treesitter: nvim-treesitter (main) baut PARSER nur interaktiv (headless laeuft
+# der Async-Installer nicht durch). Die QUERIES liegen fix im Plugin; fehlen sie
+# bei vorhandenen Parsern, ist alles grau. Darum hier deterministisch spiegeln.
+ts_plug="$HOME/.local/share/nvim/lazy/nvim-treesitter"
+ts_site="$HOME/.local/share/nvim/site"
+ts_langs="bash c diff html lua luadoc markdown markdown_inline query vim vimdoc
+          toml ini yaml json ssh_config tmux fish desktop gitignore git_config"
+
+echo
+if [ -d "$ts_plug/runtime/queries" ]; then
+  mkdir -p "$ts_site/queries"
+  cp -rf "$ts_plug/runtime/queries/." "$ts_site/queries/"
+  echo "Treesitter-Queries nach site/queries/ gespiegelt (Sicherheitsnetz gegen 'alles grau')."
+
+  no_parser=""
+  for lang in $ts_langs; do
+    [ -f "$ts_site/parser/$lang.so" ] || no_parser="$no_parser $lang"
+  done
+  if [ -n "$no_parser" ]; then
+    echo "Noch keine Parser fuer:$no_parser"
+    echo "  Letzter Schritt (interaktiv, headless geht nicht): 'nvim' starten,"
+    echo "  ensure_installed baut die Parser automatisch (alternativ ':TSUpdate')."
+    echo "  Danach 'install.sh' erneut laufen lassen -> spiegelt Queries und prueft."
+  else
+    echo "Alle erwarteten Parser vorhanden. Highlighting ist startklar."
+  fi
+else
+  echo "nvim-treesitter noch nicht installiert."
+  echo "  'nvim' einmal starten (lazy.nvim holt die Plugins, ensure_installed baut die Parser),"
+  echo "  dann 'install.sh' erneut ausfuehren: spiegelt die Queries und prueft den Status."
+fi
+
 exit 0

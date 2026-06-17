@@ -872,6 +872,17 @@ require("lazy").setup({
 				"query",
 				"vim",
 				"vimdoc",
+				-- shell + config files
+				"toml",
+				"ini",
+				"yaml",
+				"json",
+				"ssh_config",
+				"tmux",
+				"fish",
+				"desktop",
+				"gitignore",
+				"git_config",
 			}
 
 			require("nvim-treesitter").setup({
