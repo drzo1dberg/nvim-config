@@ -134,13 +134,37 @@ M.cwd = {
 			end,
 			"cwd in den Vault",
 		},
-		["<leader>cd"] = {
+		["<leader>cw"] = {
 			function()
 				local dir = vim.fn.expand("%:p:h")
 				vim.fn.chdir(dir)
 				vim.notify("cwd: " .. dir)
 			end,
-			"cwd ins Verzeichnis der offenen Datei",
+			"cwd ins Verzeichnis der offenen Datei (current work)",
+		},
+		["<leader>cd"] = {
+			function()
+				local builtin = require("telescope.builtin")
+				local actions = require("telescope.actions")
+				local astate = require("telescope.actions.state")
+				builtin.find_files({
+					prompt_title = "cwd wechseln (Ordner waehlen)",
+					find_command = { "fd", "--type", "d", "--hidden", "--exclude", ".git" },
+					attach_mappings = function(prompt_bufnr)
+						actions.select_default:replace(function()
+							local entry = astate.get_selected_entry()
+							actions.close(prompt_bufnr)
+							if entry then
+								local dir = vim.fn.fnamemodify(entry.path or entry.value or entry[1], ":p")
+								vim.fn.chdir(dir)
+								vim.notify("cwd: " .. dir)
+							end
+						end)
+						return true
+					end,
+				})
+			end,
+			"cwd per Telescope-Ordnerwahl",
 		},
 	},
 }
