@@ -143,29 +143,35 @@ M.cwd = {
 				local astate = require("telescope.actions.state")
 				local tactions = require("telescope.actions")
 				fb.file_browser({
-					files = false,
+					files = true,
 					hidden = true,
 					respect_gitignore = false,
-					prompt_title = "cwd waehlen: navigieren, <C-y> setzt Verzeichnis",
+					prompt_title = "Ordner setzt cwd, Datei oeffnet plus cwd, mit <C-y>",
 					attach_mappings = function(prompt_bufnr, map)
-						local set_cwd = function()
+						local confirm = function()
 							local entry = astate.get_selected_entry()
 							local picker = astate.get_current_picker(prompt_bufnr)
-							local dir = (entry and entry.path) or (picker and picker.finder and picker.finder.path)
+							local target = (entry and entry.path) or (picker and picker.finder and picker.finder.path)
 							tactions.close(prompt_bufnr)
-							if dir and vim.fn.isdirectory(dir) == 1 then
-								vim.env.PWD = dir
-								vim.fn.chdir(dir)
+							if not target then return end
+							local isdir = vim.fn.isdirectory(target) == 1
+							local dir = isdir and target or vim.fn.fnamemodify(target, ":h")
+							vim.env.PWD = dir
+							vim.fn.chdir(dir)
+							if isdir then
 								vim.notify("cwd: " .. dir)
+							else
+								vim.cmd.edit(vim.fn.fnameescape(target))
+								vim.notify("geoeffnet: " .. vim.fn.fnamemodify(target, ":t") .. "  |  cwd: " .. dir)
 							end
 						end
-						map("i", "<C-y>", set_cwd)
-						map("n", "<C-y>", set_cwd)
+						map("i", "<C-y>", confirm)
+						map("n", "<C-y>", confirm)
 						return true
 					end,
 				})
 			end,
-			"cwd-Browser, frei navigieren, <C-y> setzt cwd",
+			"cwd-Browser: Ordner setzt cwd, Datei oeffnet plus cwd",
 		},
 	},
 }
