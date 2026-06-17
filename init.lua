@@ -821,12 +821,9 @@ require("lazy").setup({
 			local orig_filename = statusline.section_filename
 			---@diagnostic disable-next-line: duplicate-set-field
 			statusline.section_filename = function(args)
-				-- nur der aktuelle Ordnername, Home bleibt ~
+				-- cwd home-relativ mit ~, ausserhalb von Home der volle Pfad
 				local cwd = vim.fn.fnamemodify(vim.fn.getcwd(), ":~")
-				if cwd ~= "~" then
-					cwd = vim.fn.fnamemodify((cwd:gsub("/$", "")), ":t")
-				end
-				return cwd .. "  " .. orig_filename(args)
+				return "cwd: " .. cwd .. "  " .. orig_filename(args)
 			end
 
 			-- Statusline nach dem Start und bei cwd-Wechsel neu zeichnen, sonst
