@@ -154,36 +154,70 @@ else
   echo "Erst die fehlenden Abhaengigkeiten installieren, dann nvim starten."
 fi
 
-# Treesitter: nvim-treesitter (main) baut PARSER nur interaktiv (headless laeuft
-# der Async-Installer nicht durch). Die QUERIES liegen fix im Plugin; fehlen sie
-# bei vorhandenen Parsern, ist alles grau. Darum hier deterministisch spiegeln.
+# Treesitter: Parser + Queries deterministisch sicherstellen.
+# Der Async-Installer von nvim-treesitter (main) laeuft in manchen Umgebungen
+# nicht durch (':TSInstall' ohne jedes Feedback). Darum bauen wir selbst:
+# Grammatik je Revision aus parsers.lua holen, mit 'tree-sitter build' bauen
+# (gcc-Fallback), und die mitgelieferten Queries dazulegen. Idempotent.
 ts_plug="$HOME/.local/share/nvim/lazy/nvim-treesitter"
 ts_site="$HOME/.local/share/nvim/site"
+ts_pl="$ts_plug/lua/nvim-treesitter/parsers.lua"
 ts_langs="bash c diff html lua luadoc markdown markdown_inline query vim vimdoc
           toml ini yaml json ssh_config tmux fish desktop gitignore git_config"
+
+# Baut genau einen Parser, falls er noch fehlt. Versionsgleich zur Query.
+ts_build_one() {
+  local lang="$1" blk url rev TMP SRC d out gdir
+  [ -f "$ts_site/parser/$lang.so" ] && return 0
+  blk=$(grep -A8 "^  ${lang} = {" "$ts_pl")
+  url=$(printf '%s' "$blk" | grep -m1 'url' | sed -E "s/.*'([^']*)'.*/\1/")
+  rev=$(printf '%s' "$blk" | grep -m1 'revision' | sed -E "s/.*'([^']*)'.*/\1/")
+  if [ -z "$url" ] || [ -z "$rev" ]; then echo "  $lang: keine Revision in parsers.lua"; return 0; fi
+  TMP=$(mktemp -d)
+  if ! curl -fsSL "$url/archive/$rev.tar.gz" -o "$TMP/g.tgz" 2>/dev/null; then
+    echo "  $lang: Download fehlgeschlagen"; rm -rf "$TMP"; return 0; fi
+  tar xzf "$TMP/g.tgz" -C "$TMP" 2>/dev/null
+  SRC=""
+  for d in $(find "$TMP" -type d -name src); do
+    if [ -f "$d/parser.c" ] && grep -qE "tree_sitter_${lang}\(" "$d/parser.c"; then SRC="$d"; break; fi
+  done
+  [ -z "$SRC" ] && SRC=$(find "$TMP" -type d -name src | head -1)
+  if [ -z "$SRC" ]; then echo "  $lang: kein src"; rm -rf "$TMP"; return 0; fi
+  out="$TMP/$lang.so"; gdir=$(dirname "$SRC")
+  if ! tree-sitter build "$gdir" -o "$out" 2>/dev/null; then
+    if [ -f "$SRC/scanner.cc" ]; then c++ -fPIC -shared -Os -I "$SRC" "$SRC/parser.c" "$SRC/scanner.cc" -o "$out" 2>/dev/null
+    elif [ -f "$SRC/scanner.c" ]; then cc -fPIC -shared -Os -I "$SRC" "$SRC/parser.c" "$SRC/scanner.c" -o "$out" 2>/dev/null
+    else cc -fPIC -shared -Os -I "$SRC" "$SRC/parser.c" -o "$out" 2>/dev/null; fi
+  fi
+  if [ -f "$out" ] && nm -D "$out" 2>/dev/null | grep -qE " T tree_sitter_${lang}$"; then
+    mkdir -p "$ts_site/parser" "$ts_site/parser-info"
+    mv "$out" "$ts_site/parser/$lang.so"
+    printf '%s' "$rev" > "$ts_site/parser-info/$lang.revision"
+    echo "  $lang: gebaut"
+  else
+    echo "  $lang: Build fehlgeschlagen"
+  fi
+  rm -rf "$TMP"
+}
 
 echo
 if [ -d "$ts_plug/runtime/queries" ]; then
   mkdir -p "$ts_site/queries"
   cp -rf "$ts_plug/runtime/queries/." "$ts_site/queries/"
-  echo "Treesitter-Queries nach site/queries/ gespiegelt (Sicherheitsnetz gegen 'alles grau')."
-
-  no_parser=""
+  echo "Treesitter-Queries nach site/queries/ gespiegelt."
+  echo "Treesitter-Parser pruefen/bauen:"
+  set +e  # einzelne Build-Fehler duerfen install.sh nicht abbrechen
+  built=0
   for lang in $ts_langs; do
-    [ -f "$ts_site/parser/$lang.so" ] || no_parser="$no_parser $lang"
+    if [ ! -f "$ts_site/parser/$lang.so" ]; then ts_build_one "$lang"; built=1; fi
   done
-  if [ -n "$no_parser" ]; then
-    echo "Noch keine Parser fuer:$no_parser"
-    echo "  Letzter Schritt (interaktiv, headless geht nicht): 'nvim' starten,"
-    echo "  ensure_installed baut die Parser automatisch (alternativ ':TSUpdate')."
-    echo "  Danach 'install.sh' erneut laufen lassen -> spiegelt Queries und prueft."
-  else
-    echo "Alle erwarteten Parser vorhanden. Highlighting ist startklar."
-  fi
+  set -e
+  [ "$built" -eq 0 ] && echo "  alle vorhanden."
+  echo "Highlighting ist startklar."
 else
   echo "nvim-treesitter noch nicht installiert."
-  echo "  'nvim' einmal starten (lazy.nvim holt die Plugins, ensure_installed baut die Parser),"
-  echo "  dann 'install.sh' erneut ausfuehren: spiegelt die Queries und prueft den Status."
+  echo "  'nvim' einmal starten (lazy.nvim holt die Plugins), dann 'install.sh' erneut ausfuehren:"
+  echo "  spiegelt die Queries und baut die Parser deterministisch."
 fi
 
 exit 0
