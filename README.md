@@ -32,7 +32,7 @@ Das erzeugt dort die komplette Zettelkasten-Struktur, also `Zettelkasten`, `Vorl
 
 Über kickstart hinaus, alles in `lua/custom/` und `after/`:
 
-- **cwd-Navigation:** `<Space>cv` setzt das Arbeitsverzeichnis in den Vault, `<Space>cw` in das Verzeichnis der offenen Datei, `<Space>cd` öffnet einen Ordner-Browser zum freien Navigieren rauf und runter, `<C-y>` setzt das gewählte Verzeichnis als cwd.
+- **cwd-Navigation:** `<Space>cv` setzt das Arbeitsverzeichnis in den Vault, `<Space>cw` in das Verzeichnis der offenen Datei, `<Space>cd` öffnet einen Datei- und Ordner-Browser zum freien Navigieren. `<C-y>` auf einem Ordner setzt ihn als cwd, auf einer Datei öffnet es sie in einem Buffer und setzt cwd auf ihren Ordner.
 - **Statusline:** `mini.statusline` zeigt vor dem Dateinamen `cwd: <pfad>`. Über Symlinks erscheint der logische Pfad, also `~/bf` statt des aufgelösten `/mnt/c`-Pfads, home-relativ mit `~`, sonst absolut. `resolve` läuft nur bei cwd-Wechsel, der Wert ist gecacht.
 - **Obsidian:** Vault-Ort kommt aus `~/.config/obsidian-vault`. Neue Notizen landen in `Zettelkasten/`, nur `adr`-getaggte in `Architektur Decision Record/`. Tagesnotizen schreibst du per Shell-Kommando `vl` direkt nach `Zettelkasten`.
 - **Markdown:** Diagnostics und Linter sind für Markdown bewusst aus, siehe `after/ftplugin/markdown.lua` und `lua/kickstart/plugins/lint.lua`, damit Obsidian-Notizen ruhig bleiben.
