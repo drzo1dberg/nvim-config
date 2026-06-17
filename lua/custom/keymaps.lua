@@ -129,6 +129,7 @@ M.cwd = {
 		["<leader>cv"] = {
 			function()
 				local vault = vim.env.OBSIDIAN_VAULT or vim.fn.expand("~/bf")
+				vim.env.PWD = vault
 				vim.fn.chdir(vault)
 				vim.notify("cwd: " .. vault)
 			end,
@@ -137,6 +138,7 @@ M.cwd = {
 		["<leader>cw"] = {
 			function()
 				local dir = vim.fn.expand("%:p:h")
+				vim.env.PWD = dir
 				vim.fn.chdir(dir)
 				vim.notify("cwd: " .. dir)
 			end,
@@ -159,6 +161,7 @@ M.cwd = {
 							local dir = (entry and entry.path) or (picker and picker.finder and picker.finder.path)
 							tactions.close(prompt_bufnr)
 							if dir and vim.fn.isdirectory(dir) == 1 then
+								vim.env.PWD = dir
 								vim.fn.chdir(dir)
 								vim.notify("cwd: " .. dir)
 							end
