@@ -13,7 +13,7 @@
 # als systemd-User-Timer mit Persistent=true: verpasste Montage werden beim
 # naechsten Start der Distro nachgeholt, wichtig unter WSL. Ohne systemd
 # faellt es auf einen crontab-Eintrag zurueck. Braucht zk-archive.sh aus dem
-# Repo bash-skript-sammlung.
+# Repo bash-tools-and-scripts.
 set -euo pipefail
 
 vault=""
@@ -58,7 +58,7 @@ if [ -n "$vault" ]; then
   vault="${vault/#\~/$HOME}"
   case "$vault" in /*) ;; *) vault="$PWD/$vault" ;; esac
   # dieselbe Ordnerstruktur wie im Work-Vault, note_path_func erwartet sie
-  mkdir -p "$vault/Zettelkasten" "$vault/daily todos" "$vault/Vorlagen" "$vault/Architektur Decision Record"
+  mkdir -p "$vault/Zettelkasten" "$vault/Vorlagen" "$vault/Architektur Decision Record"
   mkdir -p "$HOME/.config"
   printf '%s\n' "$vault" > "$HOME/.config/obsidian-vault"
   echo
@@ -111,7 +111,7 @@ UNIT
   fi
 else
   echo "zk-archive.sh nicht gefunden, Archiv-Timer uebersprungen."
-  echo "Repo bash-skript-sammlung clonen und install.sh erneut ausfuehren."
+  echo "Repo bash-tools-and-scripts clonen und install.sh erneut ausfuehren."
 fi
 
 echo
