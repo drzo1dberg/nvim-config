@@ -144,27 +144,32 @@ M.cwd = {
 		},
 		["<leader>cd"] = {
 			function()
-				local builtin = require("telescope.builtin")
-				local actions = require("telescope.actions")
+				local fb = require("telescope").extensions.file_browser
 				local astate = require("telescope.actions.state")
-				builtin.find_files({
-					prompt_title = "cwd wechseln (Ordner waehlen)",
-					find_command = { "fd", "--type", "d", "--hidden", "--exclude", ".git" },
-					attach_mappings = function(prompt_bufnr)
-						actions.select_default:replace(function()
+				local tactions = require("telescope.actions")
+				fb.file_browser({
+					files = false,
+					hidden = true,
+					respect_gitignore = false,
+					prompt_title = "cwd waehlen: navigieren, <C-y> setzt Verzeichnis",
+					attach_mappings = function(prompt_bufnr, map)
+						local set_cwd = function()
 							local entry = astate.get_selected_entry()
-							actions.close(prompt_bufnr)
-							if entry then
-								local dir = vim.fn.fnamemodify(entry.path or entry.value or entry[1], ":p")
+							local picker = astate.get_current_picker(prompt_bufnr)
+							local dir = (entry and entry.path) or (picker and picker.finder and picker.finder.path)
+							tactions.close(prompt_bufnr)
+							if dir and vim.fn.isdirectory(dir) == 1 then
 								vim.fn.chdir(dir)
 								vim.notify("cwd: " .. dir)
 							end
-						end)
+						end
+						map("i", "<C-y>", set_cwd)
+						map("n", "<C-y>", set_cwd)
 						return true
 					end,
 				})
 			end,
-			"cwd per Telescope-Ordnerwahl",
+			"cwd-Browser, frei navigieren, <C-y> setzt cwd",
 		},
 	},
 }
