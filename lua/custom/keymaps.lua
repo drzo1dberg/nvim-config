@@ -14,7 +14,6 @@ M.delete_no_yankovizja = {
 		["<leader>d"] = { '"_d', "Delete op (no yankovizja)" },
 		["<leader>D"] = { '"_D', "Delete to EOL (no yankovizja)" },
 		["x"] = { '"_x', "Char delete (no yankovizja)" },
-		["s"] = { '"_s', "Substitute (no yankovizja)" },
 	},
 	v = {
 		["<leader>d"] = { '"_d', "Visual delete (noyankovizja)" },
@@ -180,8 +179,12 @@ M.cwd = {
 for _, section in pairs(M) do
 	for mode, mappings in pairs(section) do
 		for lhs, rhs in pairs(mappings) do
-			local cmd, desc = rhs[1], rhs[2]
-			vim.keymap.set(mode, lhs, cmd, vim.tbl_extend("force", mapopts, { desc = desc }))
+			local cmd, desc, extra = rhs[1], rhs[2], rhs[3]
+			local o = vim.tbl_extend("force", mapopts, { desc = desc })
+			if extra then
+				o = vim.tbl_extend("force", o, extra)
+			end
+			vim.keymap.set(mode, lhs, cmd, o)
 		end
 	end
 end
