@@ -829,6 +829,15 @@ require("lazy").setup({
 				return cwd .. "  " .. orig_filename(args)
 			end
 
+			-- Statusline nach dem Start und bei cwd-Wechsel neu zeichnen, sonst
+			-- zeigt der erste Frame beim Oeffnen ueber vl noch kein cwd.
+			vim.api.nvim_create_autocmd({ "VimEnter", "DirChanged" }, {
+				group = vim.api.nvim_create_augroup("cwd-statusline-redraw", { clear = true }),
+				callback = function()
+					vim.cmd("redrawstatus!")
+				end,
+			})
+
 			-- ... and there is more!
 			--  Check out: https://github.com/echasnovski/mini.nvim
 		end,
