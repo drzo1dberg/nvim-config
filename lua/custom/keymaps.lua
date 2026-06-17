@@ -127,6 +127,27 @@ M.obsidian.n["<leader>oB"] = { "<cmd>ObsidianNewShort<CR>", "New Short project" 
 M.obsidian.n["<leader>oP"] = { "<cmd>ObsidianNewShortFromTemplate<CR>", "Short from template" }
 M.obsidian.n["<leader>oZ"] = { "<cmd>ObsidianNewShortNumbered<CR>", "Short numbered note" }
 
+M.cwd = {
+	n = {
+		["<leader>cv"] = {
+			function()
+				local vault = vim.env.OBSIDIAN_VAULT or vim.fn.expand("~/bf")
+				vim.fn.chdir(vault)
+				vim.notify("cwd: " .. vault)
+			end,
+			"cwd in den Vault",
+		},
+		["<leader>cd"] = {
+			function()
+				local dir = vim.fn.expand("%:p:h")
+				vim.fn.chdir(dir)
+				vim.notify("cwd: " .. dir)
+			end,
+			"cwd ins Verzeichnis der offenen Datei",
+		},
+	},
+}
+
 for _, section in pairs(M) do
 	for mode, mappings in pairs(section) do
 		for lhs, rhs in pairs(mappings) do
