@@ -880,6 +880,7 @@ require("lazy").setup({
 				"ssh_config",
 				"tmux",
 				"fish",
+				"powershell",
 				"desktop",
 				"gitignore",
 				"git_config",
