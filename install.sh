@@ -163,7 +163,7 @@ ts_plug="$HOME/.local/share/nvim/lazy/nvim-treesitter"
 ts_site="$HOME/.local/share/nvim/site"
 ts_pl="$ts_plug/lua/nvim-treesitter/parsers.lua"
 ts_langs="bash c diff html lua luadoc markdown markdown_inline query vim vimdoc
-          toml ini yaml json ssh_config tmux fish desktop gitignore git_config"
+          toml ini yaml json ssh_config tmux fish powershell desktop gitignore git_config"
 
 # Baut genau einen Parser, falls er noch fehlt. Versionsgleich zur Query.
 ts_build_one() {
