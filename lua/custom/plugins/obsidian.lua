@@ -14,14 +14,15 @@ end
 -- Zweiter Workspace: der ganze Code-Bereich ~/github-repos. Pfad bewusst fest und
 -- maschinenunabhaengig, dieselbe Konvention nutzt install.sh schon fuer zk-archive.
 -- Damit bleibt die Config ueber install.sh auf jeder Maschine identisch nutzbar:
--- existiert der Ordner, ist der Workspace aktiv, sonst bleibt er lautlos aus.
--- notes/ und daily/ legt obsidian.nvim beim ersten Aktivieren selbst an.
+-- existiert der Ordner, ist der Workspace aktiv, sonst bleibt er lautlos aus. Der
+-- repos-Workspace legt bewusst KEINE Ordner an, kein notes/, kein daily/, damit im
+-- Code-Baum nichts frei schwebend entsteht.
 local repos = vim.fn.expand("~/github-repos")
 
 local has_vault = vim.fn.isdirectory(vault) == 1
 local has_repos = vim.fn.isdirectory(repos) == 1
 
--- Dateinamen-Hygiene, geteilt von beiden note_path_func.
+-- Dateinamen-Hygiene fuer die work-Vault note_path_func.
 local function sanitize(s)
 	s = (s or "")
 		:gsub("%c", "")
@@ -30,16 +31,6 @@ local function sanitize(s)
 		:gsub("%s+$", "")
 	s = s:gsub(":", ".")
 	return s
-end
-
--- Frontmatter im Repo-Bereich nur fuer echte Notizen unter notes/ und daily/.
--- Bestehende Repo-Doku wie docs/ oder ARCHITECTURE.md wird beim Speichern nie
--- angefasst. README.md, CONTRIBUTING.md, CHANGELOG.md sind ohnehin schon
--- plugin-seitig von Frontmatter ausgenommen. fname ist workspace-relativ, z.B.
--- notes/Foo.md.
-local function repos_frontmatter_enabled(fname)
-	fname = tostring(fname or "")
-	return fname:match("^notes[/\\]") ~= nil or fname:match("^daily[/\\]") ~= nil
 end
 
 -- Workspaces nur fuer real existierende Pfade bauen. obsidian.nvim wirft beim
@@ -69,26 +60,38 @@ if has_repos then
 		path = repos,
 		-- Root fest auf ~/github-repos pinnen, unabhaengig von etwaigen .obsidian-
 		-- Ordnern einzelner Repos. Backlinks, Links und Suche spannen den ganzen Baum.
+		-- obsidians ripgrep laeuft ohne --hidden und ohne --no-ignore, daher fallen
+		-- .git und .terraform automatisch raus, der Index bleibt schlank.
 		strict = true,
 		overrides = {
-			-- Neue und per [[Link]] erzeugte Notizen zentral nach ~/github-repos/notes,
-			-- nicht in die Zettelkasten-Struktur des work-Vaults.
-			notes_subdir = "notes",
-			new_notes_location = "notes_subdir",
-			note_path_func = function(spec)
-				local title = sanitize(spec.title)
-				if title == "" then
-					title = "note-" .. (spec.id and tostring(spec.id):sub(1, 6) or "")
-				end
-				return (spec.dir / title):with_suffix(".md", true)
+			-- Neue und per [[Link]] erzeugte Notizen entstehen neben der aktuellen
+			-- Datei, kein zentraler Sammelordner, keine Zettelkasten-Struktur.
+			new_notes_location = "current_dir",
+
+			-- Lesbare Slug-Dateinamen statt Zeitstempel-IDs. Als Wrapper, damit das
+			-- builtin-Modul erst zur Laufzeit geladen wird, nicht schon beim Spec-Eval.
+			note_id_func = function(title, path)
+				return require("obsidian.builtin").title_id(title, path)
 			end,
-			-- Daily Notes zentral nach ~/github-repos/daily.
+
+			-- Die globale note_path_func wuerde in den Zettelkasten routen und beim
+			-- Folgen eines [[Links]] einen Zettelkasten-Ordner im aktuellen Verzeichnis
+			-- anlegen. Hier stattdessen schlicht spec.dir/<slug>.md, ohne Unterordner.
+			note_path_func = function(spec)
+				return (spec.dir / tostring(spec.id)):with_suffix(".md", true)
+			end,
+
+			-- Keine Daily Notes im Code-Baum. Sonst legt obsidian.nvim beim Aktivieren
+			-- des Workspace einen Daily-Ordner an. Dailies entstehen im bf-Vault.
 			daily_notes = {
-				folder = "daily",
+				enabled = false,
 			},
-			-- READMEs und Repo-Doku schuetzen: Frontmatter nur unter notes/ und daily/.
+
+			-- Frontmatter im Code-Baum nicht automatisch schreiben. READMEs, docs/ und
+			-- Content-Dateien mit eigenem YAML bleiben unangetastet. Obsidian rendert und
+			-- respektiert bestehendes Frontmatter weiterhin.
 			frontmatter = {
-				enabled = repos_frontmatter_enabled,
+				enabled = false,
 			},
 		},
 	})
@@ -136,7 +139,8 @@ return {
 
 		-- frontmatter.func ersetzt das fruehere top-level note_frontmatter_func, das in
 		-- v3.16.4 deprecated ist und bis 4.0 verschwindet. Gilt fuer beide Workspaces,
-		-- welche Dateien es trifft, steuert frontmatter.enabled pro Workspace.
+		-- welche Dateien es trifft, steuert frontmatter.enabled pro Workspace. Im
+		-- repos-Workspace ist enabled false, dort wird also nie Frontmatter geschrieben.
 		frontmatter = {
 			func = function(note)
 				local today = os.date("%Y-%m-%d")
@@ -163,10 +167,10 @@ return {
 		-- obsidian.nvim wechselt den aktiven Workspace NICHT von selbst beim Oeffnen
 		-- einer Datei. Es setzt den Workspace nur einmal beim Laden anhand des cwd
 		-- und sonst nur per :Obsidian workspace. Damit haengen die Per-Workspace-
-		-- Regeln, etwa der README-Schutz im Repo-Bereich oder das Rendering, sonst
-		-- am Zufall des cwd. Darum schalten wir beim Betreten eines Markdown-Buffers
-		-- selbst um: nur zwischen den eigenen Workspaces, nie in den .obsidian.wiki-
-		-- Fallback, und nur bei echtem Wechsel.
+		-- Regeln, etwa der README-Schutz im Repo-Bereich oder das Notiz-Routing,
+		-- sonst am Zufall des cwd. Darum schalten wir beim Betreten eines Markdown-
+		-- Buffers selbst um: nur zwischen den eigenen Workspaces, nie in den
+		-- .obsidian.wiki-Fallback, und nur bei echtem Wechsel.
 		local Workspace = require("obsidian.workspace")
 		local oapi = require("obsidian.api")
 		local own = { work = true, repos = true }
