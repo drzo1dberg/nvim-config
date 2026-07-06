@@ -12,7 +12,7 @@
 # Richtet ausserdem den woechentlichen Zettelkasten-Archiver ein, montags 09:00,
 # als systemd-User-Timer mit Persistent=true: verpasste Montage werden beim
 # naechsten Start der Distro nachgeholt, wichtig unter WSL. Ohne systemd
-# faellt es auf einen crontab-Eintrag zurueck. Braucht zk-archive.sh aus dem
+# faellt es auf einen crontab-Eintrag zurueck. Braucht bin/zk-archive aus dem
 # Repo bash-tools-and-scripts.
 set -euo pipefail
 
@@ -69,7 +69,7 @@ fi
 # --- Zettelkasten-Archiver woechentlich am Montag -----------------------------
 zk="$HOME/.local/bin/zk-archive"
 if [ ! -e "$zk" ]; then
-  zk_src="$HOME/github-repos/drzo1dberg/bash-tools-and-scripts/zk-archive.sh"
+  zk_src="$HOME/github-repos/drzo1dberg/bash-tools-and-scripts/bin/zk-archive"
   if [ -f "$zk_src" ]; then
     mkdir -p "$HOME/.local/bin"
     ln -sf "$zk_src" "$zk"
