@@ -46,7 +46,7 @@ if has_vault then
 		-- damit sie ueberhaupt greifen.
 		overrides = {
 			templates = {
-				folder = "Vorlagen",
+				folder = "vorlagen",
 				date_format = "%Y-%m-%d",
 				time_format = "%H:%M",
 			},
@@ -114,8 +114,9 @@ return {
 	opts = {
 		workspaces = workspaces,
 
-		-- globales note_path_func gilt fuer den work-Vault: Routing nach Zettelkasten
-		-- bzw. Architektur Decision Record. Der repos-Workspace ueberschreibt es oben.
+		-- globales note_path_func gilt fuer den work-Vault: Routing nach zettelkasten
+		-- bzw. architektur-decision-record. Der repos-Workspace ueberschreibt es oben.
+		-- Ordnernamen im Vault sind durchgaengig klein und ohne Leerzeichen.
 		note_path_func = function(spec)
 			local function has_tag(tags, want)
 				for _, t in ipairs(tags or {}) do
@@ -130,11 +131,11 @@ return {
 			end
 
 			if has_tag(spec.tags, "adr") then
-				return "Architektur Decision Record/" .. title
+				return "architektur-decision-record/" .. title
 			end
 
 			-- Alles andere landet im Zettelkasten.
-			return "Zettelkasten/" .. title
+			return "zettelkasten/" .. title
 		end,
 
 		-- frontmatter.func ersetzt das fruehere top-level note_frontmatter_func, das in

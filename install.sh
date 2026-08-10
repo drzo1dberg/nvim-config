@@ -58,7 +58,7 @@ if [ -n "$vault" ]; then
   vault="${vault/#\~/$HOME}"
   case "$vault" in /*) ;; *) vault="$PWD/$vault" ;; esac
   # dieselbe Ordnerstruktur wie im Work-Vault, note_path_func erwartet sie
-  mkdir -p "$vault/Zettelkasten" "$vault/Vorlagen" "$vault/Architektur Decision Record"
+  mkdir -p "$vault/zettelkasten" "$vault/vorlagen" "$vault/architektur-decision-record"
   mkdir -p "$HOME/.config"
   printf '%s\n' "$vault" > "$HOME/.config/obsidian-vault"
   echo
