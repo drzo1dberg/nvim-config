@@ -6,6 +6,7 @@ vim.g.maplocalleader = " "
 require("custom.keymaps")
 require("custom.options")
 require("custom.autocmds")
+require("custom.vault_links").setup()
 vim.g.have_nerd_font = true
 -- [[ Setting options ]]
 -- See `:help vim.o`
