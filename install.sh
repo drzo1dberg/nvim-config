@@ -212,7 +212,13 @@ ts_build_one() {
 echo
 if [ -d "$ts_plug/runtime/queries" ]; then
   mkdir -p "$ts_site/queries"
-  cp -rf "$ts_plug/runtime/queries/." "$ts_site/queries/"
+  for src in "$ts_plug/runtime/queries"/*/; do
+    dst="$ts_site/queries/$(basename "$src")"
+    # nvim-treesitter verlinkt manche Sprachen selbst nach site/, cp auf sich selbst bricht ab.
+    if [ "$src" -ef "$dst" ]; then continue; fi
+    mkdir -p "$dst"
+    cp -rf "$src." "$dst/"
+  done
   echo "Treesitter-Queries nach site/queries/ gespiegelt."
   echo "Treesitter-Parser pruefen/bauen:"
   set +e  # einzelne Build-Fehler duerfen install.sh nicht abbrechen
