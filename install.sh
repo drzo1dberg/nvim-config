@@ -13,7 +13,8 @@
 # als systemd-User-Timer mit Persistent=true: verpasste Montage werden beim
 # naechsten Start der Distro nachgeholt, wichtig unter WSL. Ohne systemd
 # faellt es auf einen crontab-Eintrag zurueck. Braucht bin/zk-archive aus dem
-# Repo bash-tools-and-scripts.
+# Repo bash-tools-and-scripts. Nach jedem Archivlauf repariert
+# lua/custom/vault_links.lua die relativen Links der verschobenen Notizen.
 set -euo pipefail
 
 vault=""
@@ -27,7 +28,7 @@ while [ $# -gt 0 ]; do
       vault="${1#*=}"
       ;;
     -h|--help)
-      sed -n '2,17p' "$0"
+      sed -n '2,19p' "$0"
       exit 0
       ;;
     *)
@@ -88,6 +89,14 @@ Description=Zettelkasten-Archiver, verschiebt alte Notizen in Wochenordner
 Type=oneshot
 ExecStart=%h/.local/bin/zk-archive --apply
 UNIT
+  # Link-Fixer nach dem Umzug, das Minus haelt den Archivlauf bei einem Fehler gruen.
+  nvim_bin="$(command -v nvim || true)"
+  fixer="$target/lua/custom/vault_links.lua"
+  fix_cmd=""
+  if [ -n "$nvim_bin" ] && [ -f "$fixer" ]; then
+    fix_cmd="$nvim_bin -u NONE -l $fixer --apply"
+    echo "ExecStartPost=-$fix_cmd" >> "$HOME/.config/systemd/user/zk-archive.service"
+  fi
   cat > "$HOME/.config/systemd/user/zk-archive.timer" <<'UNIT'
 [Unit]
 Description=Zettelkasten-Archiver woechentlich am Montag
@@ -103,7 +112,7 @@ UNIT
      && systemctl --user enable --now zk-archive.timer 2>/dev/null; then
     echo "Archiv-Timer aktiv: montags 09:00, verpasste Laeufe werden nachgeholt."
   elif command -v crontab >/dev/null 2>&1; then
-    ( crontab -l 2>/dev/null | grep -v 'zk-archive'; echo "0 9 * * 1 $zk --apply" ) | crontab -
+    ( crontab -l 2>/dev/null | grep -v 'zk-archive'; echo "0 9 * * 1 $zk --apply${fix_cmd:+; $fix_cmd}" ) | crontab -
     echo "Kein systemd-User-Manager, Archiver laeuft stattdessen per crontab montags 09:00."
     echo "Achtung: cron holt verpasste Laeufe nicht nach, wenn die Maschine aus war."
   else
